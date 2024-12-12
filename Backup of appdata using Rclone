@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Variables
+SOURCE_DIR="/mnt/user/appdata"
+DEST_REMOTE="Backup for Appdata:/Server/Backup/Appdata"
+TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')  # Include seconds
+TEMP_DIR="/tmp/appdata_backup_$TIMESTAMP"
+BACKUP_NAME="appdata_backup_$TIMESTAMP.zip"
+TEMP_ZIP="/tmp/$BACKUP_NAME"
+
+# Create a temporary directory with a timestamped name and copy the source files
+mkdir -p "$TEMP_DIR"
+cp -r "$SOURCE_DIR"/* "$TEMP_DIR"
+
+# Create the zip file from the timestamped directory
+zip -r "$TEMP_ZIP" "$TEMP_DIR"
+
+# Copy the zip file directly to the remote location
+rclone copy "$TEMP_ZIP" "$DEST_REMOTE"
+
+# Clean up the temporary files
+rm -rf "$TEMP_DIR" "$TEMP_ZIP"
+
+# Log the backup (optional)
+echo "$(date): Backup $BACKUP_NAME completed" >> /var/log/appdata_backup.log
